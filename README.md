@@ -29,16 +29,14 @@ npm run dev
 
 ```bash
 # 构建测试环境
-npm run build:stage
+npm run build
 
-# 构建生产环境
-npm run build:prod
 ```
 
 ## `Docker`运行
 
 - `docker build -t vue-proj/admin-front-website .`
-- `docker run -di --name=docker-vue vue-proj/admin-front-website`
+- `docker run -di --name=docker-vue -p 8080:8080 vue-proj/admin-front-website`
 
 ## 其它
 
