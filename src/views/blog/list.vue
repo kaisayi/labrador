@@ -27,10 +27,13 @@
       <el-table-column fixed="right" align="center" label="操作" width="80">
         <template slot-scope="scope">
           <router-link :to="`/blog/edit/${scope.row.id}`" class="link-type">
-            <el-button type="text" icon="el-icon-edit" size="small"></el-button>
+            <el-tooltip effect="light" content="编辑" placement="top">
+              <el-button type="text" icon="el-icon-edit" ></el-button>
+            </el-tooltip>
           </router-link>
-          <br>
-          <el-button @click="handleDelete(scope.row.id)" type="text" icon="el-icon-delete"></el-button>
+          <el-tooltip effect="light" content="删除" placement="top">
+            <el-button @click.native="handleDelete(scope.row.id)" type="text" icon="el-icon-delete"></el-button>
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column prop="title" align="center" sortable label="标题"></el-table-column>

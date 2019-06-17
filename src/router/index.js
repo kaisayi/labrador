@@ -1,5 +1,5 @@
-import Vue from 'vue';
-import Router from 'vue-router';
+import Vue from 'vue'
+import Router from 'vue-router'
 
 // in development-env not use lazy-loading, because lazy-loading too many pages will cause webpack hot update too slow. so only in production use lazy-loading;
 // detail: https://panjiachen.github.io/vue-element-admin-site/#/lazy-loading
@@ -7,7 +7,7 @@ import Router from 'vue-router';
 Vue.use(Router)
 
 /* Layout */
-import Layout from '../views/layout/Layout';
+import Layout from '../views/layout/Layout'
 
 /**
 * hidden: true                   if `hidden:true` will not show in the sidebar(default is false)
@@ -62,28 +62,35 @@ export const constantRouterMap = [
         meta: { title: '博客gallery', icon: 'list' }
       },
       {
+        path: 'edit/:id(\\d+)',
+        name: 'Edit Blog',
+        hidden: true,
+        component: () => import('@/views/blog/edit'),
+        meta: { title: 'Edit Blog', noCache: true, activeMenu: '/blog/list' }
+      },
+      {
         path: 'tags',
-        name: 'BlogTags',
-        component: () => import('@/views/tree/index'),
+        name: 'Tags',
+        comments: () => import('@/views/blog/edit'),
         meta: { title: '标签管理', icon: 'tag' }
       }
     ]
   },
   {
-    path: '/gathering',
+    path: '/system',
     component: Layout,
     name: 'System',
     meta: { title: '系统管理', icon: 'setting' },
     children: [
       {
-        path: 'index',
-        name: 'Form1',
+        path: 'settings',
+        name: 'Settings',
         component: () => import('@/views/table/gathering'),
         meta: { title: '系统配置', icon: 'system' }
       },
       {
-        path: 'index',
-        name: 'Form2',
+        path: 'profile',
+        name: 'Profile',
         component: () => import('@/views/table/gathering'),
         meta: { title: '修改密码', icon: 'form' }
       }
