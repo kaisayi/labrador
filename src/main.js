@@ -1,11 +1,12 @@
 import Vue from 'vue'
 
+import Cookies from 'js-cookie'
+
 import 'normalize.css/normalize.css'// A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/zh-CN'
-import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 import '@/styles/index.scss' // global css
 
@@ -16,8 +17,10 @@ import store from './store'
 import '@/icons' // icon
 import '@/permission' // permission control
 
-Vue.use(ElementUI, { locale })
-Vue.use(mavonEditor)
+Vue.use(ElementUI, {
+  locale,
+  size: Cookies.get('size') || 'medium'
+})
 
 Vue.config.productionTip = false
 

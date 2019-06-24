@@ -28,7 +28,7 @@
         <template slot-scope="scope">
           <router-link :to="`/blog/edit/${scope.row.id}`" class="link-type">
             <el-tooltip effect="light" content="编辑" placement="top">
-              <el-button type="text" icon="el-icon-edit" ></el-button>
+              <el-button type="text" icon="el-icon-edit"></el-button>
             </el-tooltip>
           </router-link>
           <el-tooltip effect="light" content="删除" placement="top">
@@ -43,7 +43,8 @@
           <el-tag
             :type="scope.row.status | statusFilter"
             close-transition
-          >{{ scope.row.status | statusNameFilter }}</el-tag>
+          >{{ scope.row.status | statusNameFilter }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="cover_image" align="center" label="预览图">
@@ -66,126 +67,127 @@
   </div>
 </template>
 <script>
-import blogApi from "@/api/blog";
+  import blogApi from '@/api/blog'
 
-export default {
-  data() {
-    return {
-      list: [],
-      total: 0, //总记录数
-      currentPage: 1, //当前页
-      pageSize: 10, //每页大小
-      searchValue: "", //查询条件
-      dialogFormVisible: false, //编辑窗口是否可见
-      pojo: {}, //编辑表单绑定的实体对象
-      id: "" //当前用户修改的ID
-    };
-  },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        1: "success",
-        2: "info",
-        3: "danger"
-      };
-      return statusMap[status];
-    },
-    statusNameFilter(status) {
-      const statusNameMap = {
-        1: "已发布",
-        2: "编辑中",
-        3: "已删除"
-      };
-      return statusNameMap[status];
-    }
-  },
-  created() {
-    this.fetchData();
-  },
-  methods: {
-    fetchData() {
-      blogApi
-        .search(this.currentPage, this.pageSize, this.searchValue)
-        .then(response => {
-          this.list = response.data.rows;
-          this.total = response.data.total;
-        });
-    },
-    handleSearch() {
-      blogApi
-        .search(this.currentPage, this.pageSize, this.searchValue)
-        .then(response => {
-          this.list = response.data.rows;
-          this.total = response.data.total;
-        });
-    },
-    handleSave() {
-      blogApi.update(this.id, this.pojo).then(response => {
-        this.$message({
-          message: response.message,
-          type: response.flag ? "success" : "error"
-        });
-
-        if (response.flag) {
-          //如果成功
-          this.fetchData(); //刷新列表
-        }
-      });
-      this.dialogFormVisible = false; //关闭窗口
-    },
-    handleEdit(id) {
-      this.id = id;
-      this.dialogFormVisible = true; //打开窗口
-
-      if (id != "") {
-        //修改
-        blogApi.findById(id).then(response => {
-          if (response.flag) {
-            this.pojo = response.data;
-          }
-        });
-      } else {
-        this.pojo = {}; //清空数据
+  export default {
+    data() {
+      return {
+        list: [],
+        total: 0, // 总记录数
+        currentPage: 1, // 当前页
+        pageSize: 10, // 每页大小
+        searchValue: '', // 查询条件
+        dialogFormVisible: false, // 编辑窗口是否可见
+        pojo: {}, // 编辑表单绑定的实体对象
+        id: '' // 当前用户修改的ID
       }
     },
-    handleDelete(id) {
-      this.$confirm("确定要删除此纪录吗?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          blogApi.deleteById(id).then(response => {
-            this.$message({
-              message: response.message,
-              type: response.flag ? "success" : "error"
-            });
-            if (response.flag) {
-              this.fetchData(); // 刷新数据
-            }
-          });
+    filters: {
+      statusFilter(status) {
+        const statusMap = {
+          1: 'success',
+          2: 'info',
+          3: 'danger'
+        }
+        return statusMap[status]
+      },
+      statusNameFilter(status) {
+        const statusNameMap = {
+          1: '已发布',
+          2: '编辑中',
+          3: '已删除'
+        }
+        return statusNameMap[status]
+      }
+    },
+    created() {
+      this.fetchData()
+    },
+    methods: {
+      fetchData() {
+        blogApi
+          .search(this.currentPage, this.pageSize, this.searchValue)
+          .then(response => {
+            this.list = response.data.rows
+            this.total = response.data.total
+          })
+      },
+      handleSearch() {
+        blogApi
+          .search(this.currentPage, this.pageSize, this.searchValue)
+          .then(response => {
+            this.list = response.data.rows
+            this.total = response.data.total
+          })
+      },
+      handleSave() {
+        blogApi.update(this.id, this.pojo).then(response => {
+          this.$message({
+            message: response.message,
+            type: response.flag ? 'success' : 'error'
+          })
+
+          if (response.flag) {
+            // 如果成功
+            this.fetchData() // 刷新列表
+          }
         })
-        .catch(() => {});
+        this.dialogFormVisible = false // 关闭窗口
+      },
+      handleEdit(id) {
+        this.id = id
+        this.dialogFormVisible = true // 打开窗口
+
+        if (id !== '') {
+          // 修改
+          blogApi.findById(id).then(response => {
+            if (response.flag) {
+              this.pojo = response.data
+            }
+          })
+        } else {
+          this.pojo = {} // 清空数据
+        }
+      },
+      handleDelete(id) {
+        this.$confirm('确定要删除此纪录吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+          .then(() => {
+            blogApi.deleteById(id).then(response => {
+              this.$message({
+                message: response.message,
+                type: response.flag ? 'success' : 'error'
+              })
+              if (response.flag) {
+                this.fetchData() // 刷新数据
+              }
+            })
+          })
+          .catch(() => {
+          })
+      }
     }
   }
-};
 </script>
 
 <style lang="scss" scoped>
-.search-icon {
-  cursor: pointer;
-  font-size: 18px;
-  vertical-align: middle;
-}
+  .search-icon {
+    cursor: pointer;
+    font-size: 18px;
+    vertical-align: middle;
+  }
 
-.header-search-select {
-  font-size: 18px;
-  transition: width 0.2s;
-  width: 0;
-  overflow: hidden;
-  background: transparent;
-  border-radius: 0;
-  display: inline-block;
-  vertical-align: middle;
-}
+  .header-search-select {
+    font-size: 18px;
+    transition: width 0.2s;
+    width: 0;
+    overflow: hidden;
+    background: transparent;
+    border-radius: 0;
+    display: inline-block;
+    vertical-align: middle;
+  }
 </style>
