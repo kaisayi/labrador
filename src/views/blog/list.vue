@@ -1,20 +1,12 @@
 <template>
-  <div class="app-container">
-    <br>
-    <el-form :inline="true">
-      <el-form-item>
-        <el-input placeholder="Search" v-model="searchValue"></el-input>
+  <div class="app-container" :inline="true">
+    <el-form :model="search" >
+      <el-form-item prop="title">
+        <md-input v-model="search.title" icon="search" name="title" placeholder="输入标题">
+        </md-input>
       </el-form-item>
-      <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
     </el-form>
 
-    <!-- <svg-icon class-name="search-icon" icon-class="search" @click.stop="click"/> -->
-    <!-- <el-form :inline="true">
-      <el-form-item label="标题">
-        <el-input v-model="searchMap.name" placeholder="查询内容"></el-input>
-      </el-form-item>
-      <el-tag type="primary" @click="fetchData()">查询</el-tag>
-    </el-form>-->
     <el-table
       :data="list"
       border
@@ -68,6 +60,7 @@
 </template>
 <script>
   import blogApi from '@/api/blog'
+  import MdInput from '@/components/MDinput'
 
   export default {
     data() {
@@ -76,12 +69,15 @@
         total: 0, // 总记录数
         currentPage: 1, // 当前页
         pageSize: 10, // 每页大小
-        searchValue: '', // 查询条件
+        search: {
+          title: undefined
+        }, // 查询条件
         dialogFormVisible: false, // 编辑窗口是否可见
         pojo: {}, // 编辑表单绑定的实体对象
         id: '' // 当前用户修改的ID
       }
     },
+    components: { MdInput },
     filters: {
       statusFilter(status) {
         const statusMap = {

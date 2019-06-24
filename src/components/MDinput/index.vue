@@ -237,7 +237,7 @@
 
   // Component:
   .material-input__component {
-    margin-top: 36px;
+    margin-top: 0px;
     position: relative;
     * {
       box-sizing: border-box;
@@ -266,7 +266,7 @@
       font-size: $font-size-base;
       padding: $spacer $spacer $spacer - $apixel * 10 $spacer / 2;
       display: block;
-      width: 100%;
+      width: 30%;
       border: none;
       line-height: 1;
       border-radius: 0;
@@ -288,7 +288,7 @@
     .material-input-bar {
       position: relative;
       display: block;
-      width: 100%;
+      width: 30%;
       &:before {
         @extend %base-bar-pseudo;
         left: 50%;

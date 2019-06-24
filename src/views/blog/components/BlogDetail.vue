@@ -1,20 +1,10 @@
 <template>
   <div class="createPost-container">
     <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container">
-      <sticky :z-index="10" :class-name="'sub-navbar '+postForm.status">
-        <CommentDropdown v-model="postForm.comment_disabled"/>
-        <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">
-          Publish
-        </el-button>
-        <el-button v-loading="loading" type="warning" @click="draftForm">
-          Draft
-        </el-button>
-      </sticky>
-
       <div class="createPost-main-container">
         <el-row>
           <el-col :span="24">
-            <el-form-item style="margin-bottom: 40px;" prop="title">
+            <el-form-item style="margin-bottom: 20px;" prop="title">
               <MDinput v-model="postForm.title" :maxlength="100" name="name" required>
                 Title
               </MDinput>
@@ -22,17 +12,13 @@
           </el-col>
         </el-row>
 
-        <el-form-item style="margin-bottom: 40px;" label-width="70px" label="Summary:">
-          <el-input v-model="postForm.content_short" :rows="1" type="textarea" class="article-textarea" autosize
-                    placeholder="Please enter the content"/>
-          <span v-show="contentShortLength" class="word-counter">{{ contentShortLength }}words</span>
-        </el-form-item>
+
 
         <el-form-item prop="content" style="margin-bottom: 30px;">
           <MarkdownEditor ref="editor" v-model="postForm.content" height="400px"/>
         </el-form-item>
 
-        <el-form-item prop="image_uri" style="margin-bottom: 30px;">
+        <el-form-item prop="image_uri" style="margin-bottom: 20px;">
           <Upload v-model="postForm.image_uri"/>
         </el-form-item>
       </div>
@@ -44,7 +30,6 @@
   import MarkdownEditor from '@/components/MarkdownEditor'
   import Upload from '@/components/Upload/SingleImage'
   import MDinput from '@/components/MDinput'
-  import Sticky from '@/components/Sticky' // 粘性header组件
   import { validURL } from '@/utils/validate'
   import { CommentDropdown } from './Dropdown'
   import blogApi from '@/api/blog'
@@ -64,7 +49,7 @@
 
   export default {
     name: 'BlogDetail',
-    components: { MarkdownEditor, MDinput, Upload, Sticky, CommentDropdown },
+    components: { MarkdownEditor, MDinput, Upload, CommentDropdown },
     props: {
       isEdit: {
         type: Boolean,
@@ -123,9 +108,6 @@
         this.postForm = Object.assign({}, defaultForm)
       }
 
-      // Why need to make a copy of this.$route here?
-      // Because if you enter this page and quickly switch tag, may be in the execution of the setTagsViewTitle function, this.$route is no longer pointing to the current page
-      // https://github.com/PanJiaChen/vue-element-admin/issues/1221
       this.tempRoute = Object.assign({}, this.$route)
     },
     methods: {
@@ -193,7 +175,7 @@
     position: relative;
 
     .createPost-main-container {
-      padding: 40px 45px 20px 50px;
+      padding: 20px 20px 20px 40px;
 
       .postInfo-container {
         position: relative;
