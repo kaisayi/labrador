@@ -2,15 +2,15 @@
   <div class="createPost-container">
     <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container">
       <div class="createPost-main-container">
-        <el-row>
-          <el-col :span="24">
-            <el-form-item style="margin-bottom: 20px;" prop="title">
-              <MDinput v-model="postForm.title" :maxlength="100" name="name" required>
-                Title
-              </MDinput>
-            </el-form-item>
-          </el-col>
-        </el-row>
+        <el-form-item label="活动名称" prop="title">
+          <el-input v-model="postForm.title"></el-input>
+        </el-form-item>
+
+        <el-form-item label="分类" prop="category">
+          <el-select v-model="postForm.category_id" placeholder="分类">
+            <el-option v-for="cate in categoryList" :label="cate.name" :value="cate.id" :key="cate.id"></el-option>
+          </el-select>
+        </el-form-item>
 
 
 
@@ -31,8 +31,8 @@
   import Upload from '@/components/Upload/SingleImage'
   import MDinput from '@/components/MDinput'
   import { validURL } from '@/utils/validate'
-  import { CommentDropdown } from './Dropdown'
   import blogApi from '@/api/blog'
+  import cateApi from '@/api/category'
 
   const defaultForm = {
     status: 'draft',
@@ -49,7 +49,7 @@
 
   export default {
     name: 'BlogDetail',
-    components: { MarkdownEditor, MDinput, Upload, CommentDropdown },
+    components: { MarkdownEditor, MDinput, Upload },
     props: {
       isEdit: {
         type: Boolean,
@@ -86,6 +86,8 @@
       return {
         postForm: Object.assign({}, defaultForm),
         loading: false,
+        selLoading: false,
+        categoryList: [],
         rules: {
           image_uri: [{ validator: validateRequire }],
           title: [{ validator: validateRequire }],
@@ -109,20 +111,26 @@
       }
 
       this.tempRoute = Object.assign({}, this.$route)
+
+      this.getCategoryList()
     },
     methods: {
       fetchData(id) {
         blogApi.findById(id).then(response => {
           this.postForm = response.data
 
-          // just for test
-          this.postForm.title += `   Article Id:${this.postForm.id}`
-          this.postForm.content_short += `   Article Id:${this.postForm.id}`
-
           // set page title
           this.setPageTitle()
         }).catch(err => {
           console.log(err)
+        })
+      },
+      getCategoryList() {
+        cateApi.getList().then(response => {
+          if (response.flag) {
+            this.categoryList = response.data
+            this.selLoading = true
+          }
         })
       },
       setPageTitle() {
@@ -175,7 +183,7 @@
     position: relative;
 
     .createPost-main-container {
-      padding: 20px 20px 20px 40px;
+      padding: 10px 20px 20px 40px;
 
       .postInfo-container {
         position: relative;
