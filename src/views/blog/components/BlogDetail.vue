@@ -1,26 +1,43 @@
 <template>
-  <div class="createPost-container">
-    <el-form :model="postForm" :rules="rules" ref="postForm" label-width="100px" class="demo-postForm">
-      <el-form-item>
-        <el-button type="primary" @click="submitForm('postForm')">立即创建</el-button>
-        <el-button @click="resetForm('postForm')">重置</el-button>
-      </el-form-item>
+  <div>
+    <el-form :model="postForm" :rules="rules" ref="postForm" label-width="60px">
       <el-form-item label="标题" prop="title">
         <el-input v-model="postForm.title"></el-input>
       </el-form-item>
       <el-form-item label="分类" prop="category_id">
         <el-select v-model="postForm.category_id" placeholder="类型">
-          <el-option label="区域一" value="shanghai"></el-option>
+          <el-option v-for="cate in catetoryList" :label="cate.name" :value="cate.id" :key="cate.id"></el-option>
         </el-select>
+      </el-form-item>
+      <el-form-item label="链接" prop="sub_url">
+        <el-input v-model="postForm.sub_url"></el-input>
+      </el-form-item>
+      <el-form-item label="标签" prop="tags">
+        <el-input v-model="postForm.tags"></el-input>
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="postForm.status">
-          <el-radio label="发布"></el-radio>
-          <el-radio label="存档"></el-radio>
+          <el-radio border label="0">存档</el-radio>
+          <el-radio border label="1">发布</el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="submitForm('postForm')">创建</el-button>
+        <el-button @click="resetForm('postForm')">重置</el-button>
+      </el-form-item>
       <el-form-item prop="content">
-        <el-input type="textarea" v-model="postForm.content"></el-input>
+        <el-input type="textarea" v-model="postForm.content" :rows="10"></el-input>
+      </el-form-item>
+      <el-form-item prop="cover_image">
+        <el-upload
+          class="upload-demo"
+          drag
+          action="https://jsonplaceholder.typicode.com/posts/"
+          multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+        </el-upload>
       </el-form-item>
     </el-form>
   </div>
@@ -28,12 +45,13 @@
 
 <script>
   import blogApi from '@/api/blog'
+  import cateApi from '@/api/category'
 
   const defaultForm = {
     status: 0,
     title: '', // 文章题目
     content: '', // 文章内容
-    source_uri: '', // 文章外链
+    sub_url: '', // 文章外链
     image_uri: '', // 文章封面
     id: undefined,
     comment_disabled: false,
@@ -62,6 +80,7 @@
           category_id: undefined,
           comment_disabled: false
         },
+        catetoryList: [],
         rules: {
           title: [
             { required: true, message: '请输入标题', trigger: 'blur' }
@@ -69,7 +88,7 @@
           category_id: [
             { required: true, message: '请选择分类', trigger: 'change' }
           ],
-          source_uri: [
+          sub_url: [
             { required: true, message: '请填写博客链接', trigger: 'blur' }
           ],
           status: [
@@ -89,6 +108,7 @@
       } else {
         this.postForm = Object.assign({}, defaultForm)
       }
+      this.fetchCateList()
     },
     methods: {
       fetchData(id) {
@@ -98,29 +118,34 @@
           console.log(err)
         })
       },
+      fetchCateList() {
+        cateApi.getList().then(resp => {
+          this.catetoryList = resp.data
+        }).catch(err => {
+          console.log(err)
+        })
+      },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            alert('submit!');
+            blogApi.update(this.postForm.id, this.postForm).then(response => {
+              this.$message({
+                message: response.message,
+                type: response.flag ? 'success' : 'error'
+              })
+            })
           } else {
-            console.log('error submit!!');
-            return false;
+            this.$message({
+              message: '请规范填写',
+              type: 'error'
+            })
           }
-        });
+        })
       },
       resetForm(formName) {
-        this.$refs[formName].resetFields();
+        this.$refs[formName].resetFields()
       }
     }
   }
 
 </script>
-
-<style lang="scss" scoped>
-  @import "~@/styles/mixin.scss";
-  .createPost-container {
-    position: relative;
-    padding: 20px 20px 20px 0px;
-  }
-
-</style>
