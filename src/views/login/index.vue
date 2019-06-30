@@ -15,9 +15,7 @@
         </span>
         <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
           placeholder="password"></el-input>
-          <span class="show-pwd" @click="showPwd">
-            <svg-icon :icon-class="pwdType === 'password' ? 'eye' : 'eye-open'" />
-          </span>
+          <span class="show-pwd" @click="showPwd"><svg-icon icon-class="eye" /></span>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleLogin">
@@ -33,13 +31,13 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
+import { isvalidUsername } from '@/utils/validate'
 
 export default {
   name: 'login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
+      if (!isvalidUsername(value)) {
         callback(new Error('请输入正确的用户名'))
       } else {
         callback()

@@ -1,46 +1,53 @@
 <template>
-  <div class="createPost-container">
-    <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container">
-      <div class="createPost-main-container">
-        <el-form-item label="活动名称" prop="title">
-          <el-input v-model="postForm.title"></el-input>
-        </el-form-item>
-
-        <el-form-item label="分类" prop="category">
-          <el-select v-model="postForm.category_id" placeholder="分类">
-            <el-option v-for="cate in categoryList" :label="cate.name" :value="cate.id" :key="cate.id"></el-option>
-          </el-select>
-        </el-form-item>
-
-
-
-        <el-form-item prop="content" style="margin-bottom: 30px;">
-          <MarkdownEditor ref="editor" v-model="postForm.content" height="400px"/>
-        </el-form-item>
-
-        <el-form-item prop="image_uri" style="margin-bottom: 20px;">
-          <Upload v-model="postForm.image_uri"/>
-        </el-form-item>
-      </div>
+  <div>
+    <el-form :model="postForm" :rules="rules" ref="postForm" label-width="60px">
+      <el-form-item label="标题" prop="title">
+        <el-input v-model="postForm.title"></el-input>
+      </el-form-item>
+      <el-form-item label="分类" prop="category_id">
+        <el-select v-model="postForm.category_id" placeholder="类型">
+          <el-option v-for="cate in catetoryList" :label="cate.name" :value="cate.id" :key="cate.id"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="状态" prop="status">
+        <el-radio-group v-model="postForm.status">
+          <el-radio border label="0">存档</el-radio>
+          <el-radio border label="1">发布</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="submitForm('postForm')">创建</el-button>
+        <el-button @click="resetForm('postForm')">重置</el-button>
+      </el-form-item>
+      <el-form-item prop="content">
+        <mavon-editor v-model="postForm.content" ref="md" @imgAdd="$imgAdd" @change="change" style="min-height: 600px"/>
+      </el-form-item>
+      <el-form-item prop="cover_image">
+        <el-upload
+          class="upload-demo"
+          drag
+          action="https://jsonplaceholder.typicode.com/posts/"
+          multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+        </el-upload>
+      </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-  import MarkdownEditor from '@/components/MarkdownEditor'
-  import Upload from '@/components/Upload/SingleImage'
-  import MDinput from '@/components/MDinput'
-  import { validURL } from '@/utils/validate'
   import blogApi from '@/api/blog'
   import cateApi from '@/api/category'
+  import { mavonEditor } from 'mavon-editor'
+  import 'mavon-editor/dist/css/index.css'
 
   const defaultForm = {
-    status: 'draft',
+    status: 0,
     title: '', // 文章题目
     content: '', // 文章内容
-    content_short: '', // 文章摘要
-    source_uri: '', // 文章外链
-    image_uri: '', // 文章图片
+    image_uri: '', // 文章封面
     id: undefined,
     comment_disabled: false,
     category_id: undefined,
@@ -49,57 +56,45 @@
 
   export default {
     name: 'BlogDetail',
-    components: { MarkdownEditor, MDinput, Upload },
     props: {
       isEdit: {
         type: Boolean,
         default: false
       }
     },
-    data() {
-      const validateRequire = (rule, value, callback) => {
-        if (value === '') {
-          this.$message({
-            message: rule.field + '为必传项',
-            type: 'error'
-          })
-          callback(new Error(rule.field + '为必传项'))
-        } else {
-          callback()
-        }
-      }
-      const validateSourceUri = (rule, value, callback) => {
-        if (value) {
-          if (validURL(value)) {
-            callback()
-          } else {
-            this.$message({
-              message: '外链url填写不正确',
-              type: 'error'
-            })
-            callback(new Error('外链url填写不正确'))
-          }
-        } else {
-          callback()
-        }
-      }
-      return {
-        postForm: Object.assign({}, defaultForm),
-        loading: false,
-        selLoading: false,
-        categoryList: [],
-        rules: {
-          image_uri: [{ validator: validateRequire }],
-          title: [{ validator: validateRequire }],
-          content: [{ validator: validateRequire }],
-          source_uri: [{ validator: validateSourceUri, trigger: 'blur' }]
-        },
-        tempRoute: {}
-      }
+    components: {
+      mavonEditor
     },
-    computed: {
-      contentShortLength() {
-        return this.postForm.content_short.length
+    data() {
+      return {
+        postForm: {
+          id: undefined,
+          title: '',
+          status: undefined,
+          content: '',
+          tags: '',
+          source_uri: '',
+          image_uri: '',
+          category_id: undefined,
+          comment_disabled: false
+        },
+        catetoryList: [],
+        image: {},
+        rules: {
+          title: [
+            { required: true, message: '请输入标题', trigger: 'blur' }
+          ],
+          category_id: [
+            { required: true, message: '请选择分类', trigger: 'change' }
+          ],
+          status: [
+            { required: true, message: '请选择发布或者存稿', trigger: 'change' }
+          ],
+          content: [
+            { required: true, message: '请填写内容', trigger: 'blur' }
+          ]
+        }
+
       }
     },
     created() {
@@ -109,108 +104,62 @@
       } else {
         this.postForm = Object.assign({}, defaultForm)
       }
-
-      this.tempRoute = Object.assign({}, this.$route)
-
-      this.getCategoryList()
+      this.fetchCateList()
     },
     methods: {
       fetchData(id) {
         blogApi.findById(id).then(response => {
           this.postForm = response.data
-
-          // set page title
-          this.setPageTitle()
         }).catch(err => {
           console.log(err)
         })
       },
-      getCategoryList() {
-        cateApi.getList().then(response => {
-          if (response.flag) {
-            this.categoryList = response.data
-            this.selLoading = true
-          }
+      fetchCateList() {
+        cateApi.getList().then(resp => {
+          this.catetoryList = resp.data
+        }).catch(err => {
+          console.log(err)
         })
       },
-      setPageTitle() {
-        const title = 'Edit Article'
-        document.title = `${title} - ${this.postForm.id}`
-      },
-      submitForm() {
-        console.log(this.postForm)
-        this.$refs.postForm.validate(valid => {
+      submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.loading = true
-            this.$notify({
-              title: '成功',
-              message: '发布文章成功',
-              type: 'success',
-              duration: 2000
+            blogApi.update(this.postForm.id, this.postForm).then(response => {
+              this.$message({
+                message: response.message,
+                type: response.flag ? 'success' : 'error'
+              })
             })
-            this.postForm.status = 'published'
-            this.loading = false
           } else {
-            console.log('error submit!!')
-            return false
+            this.$message({
+              message: '请规范填写',
+              type: 'error'
+            })
           }
         })
       },
-      draftForm() {
-        if (this.postForm.content.length === 0 || this.postForm.title.length === 0) {
-          this.$message({
-            message: '请填写必要的标题和内容',
-            type: 'warning'
-          })
-          return
-        }
-        this.$message({
-          message: '保存成功',
-          type: 'success',
-          showClose: true,
-          duration: 1000
+      resetForm(formName) {
+        this.$refs[formName].resetFields()
+      },
+      // 将图片上传到服务器，返回地址替换到md中
+      $imgAdd(pos, $file) {
+        var formdata = new FormData()
+        formdata.append('file', $file)
+        // 这里没有服务器供大家尝试，可将下面上传接口替换为你自己的服务器接口
+        this.$axios({
+          url: '/common/upload',
+          method: 'post',
+          data: formdata,
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }).then((url) => {
+          this.$refs.md.$img2Url(pos, url)
         })
-        this.postForm.status = 'draft'
+      },
+      change(value, render) {
+        // render 为 markdown 解析后的结果
+        this.html = render
       }
     }
   }
+
 </script>
-
-<style lang="scss" scoped>
-  @import "~@/styles/mixin.scss";
-
-  .createPost-container {
-    position: relative;
-
-    .createPost-main-container {
-      padding: 10px 20px 20px 40px;
-
-      .postInfo-container {
-        position: relative;
-        @include clearfix;
-        margin-bottom: 10px;
-
-        .postInfo-container-item {
-          float: left;
-        }
-      }
-    }
-
-    .word-counter {
-      width: 40px;
-      position: absolute;
-      right: 10px;
-      top: 0px;
-    }
-  }
-
-  .article-textarea /deep/ {
-    textarea {
-      padding-right: 40px;
-      resize: none;
-      border: none;
-      border-radius: 0px;
-      border-bottom: 1px solid #bfcbd9;
-    }
-  }
-</style>

@@ -1,6 +1,8 @@
 <template>
   <div class="dashboard-container">
     <panel-group @handleSetLineChartData="handleSetLineChartData" />
+
+
   </div>
 </template>
 

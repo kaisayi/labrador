@@ -1,5 +1,7 @@
 <template>
-  <blog-detail :is-edit="true" />
+  <div class="app-container">
+    <blog-detail :is-edit="true" />
+  </div>
 </template>
 
 <script>

@@ -1,12 +1,16 @@
 <template>
-  <div class="app-container" :inline="true">
-    <el-form :model="search" >
-      <el-form-item prop="title">
-        <md-input v-model="search.title" icon="search" name="title" placeholder="输入标题">
-        </md-input>
+  <div class="app-container">
+    <br>
+    <el-form :inline="true">
+      <el-form-item>
+        <el-input
+          placeholder="Search"
+          v-model="searchValue.keyword"
+          suffix-icon="el-icon-search"
+          @keyup.enter.native="handleSearch"
+          @blur="handleSearch"></el-input>
       </el-form-item>
     </el-form>
-
     <el-table
       :data="list"
       border
@@ -60,7 +64,6 @@
 </template>
 <script>
   import blogApi from '@/api/blog'
-  import MdInput from '@/components/MDinput'
 
   export default {
     data() {
@@ -69,15 +72,14 @@
         total: 0, // 总记录数
         currentPage: 1, // 当前页
         pageSize: 10, // 每页大小
-        search: {
-          title: undefined
+        searchValue: {
+          keyword: ''
         }, // 查询条件
         dialogFormVisible: false, // 编辑窗口是否可见
         pojo: {}, // 编辑表单绑定的实体对象
         id: '' // 当前用户修改的ID
       }
     },
-    components: { MdInput },
     filters: {
       statusFilter(status) {
         const statusMap = {
